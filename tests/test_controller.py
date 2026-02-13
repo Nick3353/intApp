@@ -36,6 +36,11 @@ class ControllerTests(unittest.TestCase):
         self.assertTrue(self.controller.speak("hello"))
         self.assertEqual(self.tts.spoken, ["hello"])
 
+    def test_speak_rejects_blank_text(self):
+        self.controller.set_tts_enabled(True)
+        self.assertFalse(self.controller.speak("   "))
+        self.assertEqual(self.tts.spoken, [])
+
 
 if __name__ == "__main__":
     unittest.main()

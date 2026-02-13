@@ -73,10 +73,12 @@ class InclusiVoiceApp:
         self.start_btn.pack(side=tk.LEFT)
         self.speak_btn = ttk.Button(controls, text="Speak Selected", command=self.speak_editor_text, state=tk.DISABLED)
         self.speak_btn.pack(side=tk.LEFT, padx=8)
-        ttk.Button(controls, text="Hide", command=self.toggle_visibility).pack(side=tk.RIGHT)
+        self.stop_btn = ttk.Button(controls, text="Stop Assist", command=self.stop, state=tk.DISABLED)
+        self.stop_btn.pack(side=tk.LEFT)
+        ttk.Button(controls, text="Minimize", command=self.minimize).pack(side=tk.RIGHT)
 
         self.suggestion_box.bind("<<ListboxSelect>>", self._on_select_suggestion)
-        self.root.bind("<Control-Shift-H>", lambda _: self.toggle_visibility())
+        self.root.bind("<Control-Shift-M>", lambda _: self.minimize())
 
     def _toggle_tts_consent(self) -> None:
         enabled = self.tts_consent_var.get()
@@ -89,8 +91,15 @@ class InclusiVoiceApp:
             return
         self._running = True
         self.start_btn.configure(state=tk.DISABLED)
+        self.stop_btn.configure(state=tk.NORMAL)
         self.audio.start()
         threading.Thread(target=self._processing_loop, daemon=True).start()
+
+    def stop(self) -> None:
+        self._running = False
+        self.audio.stop()
+        self.start_btn.configure(state=tk.NORMAL)
+        self.stop_btn.configure(state=tk.DISABLED)
 
     def _processing_loop(self) -> None:
         while self._running:
@@ -116,13 +125,12 @@ class InclusiVoiceApp:
         text = self.editor.get("1.0", tk.END).strip()
         self.controller.speak(text)
 
-    def toggle_visibility(self) -> None:
-        self.root.withdraw()
-        self.root.after(2500, self.root.deiconify)
+    def minimize(self) -> None:
+        self.root.iconify()
 
 
 def run() -> None:
     root = tk.Tk()
     app = InclusiVoiceApp(root)
-    root.protocol("WM_DELETE_WINDOW", root.destroy)
+    root.protocol("WM_DELETE_WINDOW", lambda: (app.stop(), root.destroy()))
     root.mainloop()

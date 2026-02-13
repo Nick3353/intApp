@@ -54,6 +54,6 @@ class InclusiVoiceController:
         self.state.tts_enabled = enabled
 
     def speak(self, text: str) -> bool:
-        if not self.state.tts_enabled:
+        if not self.state.tts_enabled or not text.strip():
             return False
         return self.tts.speak(text)

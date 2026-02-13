@@ -4,7 +4,7 @@ InclusiVoice is a **Windows desktop accessibility prototype** for virtual interv
 - Real-time transcript simulation pipeline (replaceable with real loopback capture + STT)
 - Context-aware response suggestions
 - **Explicit user-consent gate** before any text-to-speech output
-- Always-on-top private overlay style UI with panic-hide shortcut
+- Always-on-top support UI with explicit minimize behavior
 
 ## Run locally
 
@@ -40,3 +40,8 @@ This prototype currently uses simulated STT events in `src/inclusivoice/stt.py`.
 - Implement real loopback/mic capture
 - Add encrypted local storage for profiles/session artifacts
 - Add signed updates and enterprise deployment policy support
+
+## Responsible-use boundary
+
+This application is designed for accessibility and coaching workflows with explicit user consent.
+It is not intended for stealth operation, bypassing screen sharing visibility, or deceptive use.
