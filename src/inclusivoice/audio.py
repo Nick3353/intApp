@@ -19,9 +19,9 @@ class AudioCaptureService:
     In production, replace simulated chunks with WASAPI loopback capture.
     """
 
-    def __init__(self, chunk_seconds: float = 0.5) -> None:
+    def __init__(self, chunk_seconds: float = 0.5, max_queue_size: int = 64) -> None:
         self.chunk_seconds = chunk_seconds
-        self.output: "queue.Queue[AudioChunk]" = queue.Queue()
+        self.output: "queue.Queue[AudioChunk]" = queue.Queue(maxsize=max_queue_size)
         self._running = False
         self._thread: Optional[threading.Thread] = None
 
@@ -40,5 +40,9 @@ class AudioCaptureService:
     def _produce_chunks(self) -> None:
         while self._running:
             # Silence placeholder chunk; swap with real PCM frames in production.
-            self.output.put(AudioChunk(pcm=b"", timestamp=time.time()))
+            chunk = AudioChunk(pcm=b"", timestamp=time.time())
+            if self.output.full():
+                # Keep freshest data by dropping the oldest buffered chunk.
+                self.output.get_nowait()
+            self.output.put_nowait(chunk)
             time.sleep(self.chunk_seconds)
